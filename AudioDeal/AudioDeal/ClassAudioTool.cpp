@@ -89,6 +89,11 @@ u32_t ClassAudioTool::audioCut(string inputName, string outPutPath, u16_t channe
 		outPath += fileName;
 		FILE* fp2 = NULL;
 		fp2 = fopen(outPath.c_str(), "wb+");
+		if (fp2 == NULL)
+		{
+			printf("open file failure\n");
+			return AUDIO_OPEN_FILE_FAILURE;
+		}
 		int ret = fwrite(outRes, sizeof(char), sizeRes, fp2);
 		fclose(fp2);
 		fp2 = NULL;
