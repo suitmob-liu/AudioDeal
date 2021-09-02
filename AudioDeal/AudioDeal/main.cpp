@@ -20,7 +20,7 @@ int main()
 	printf("\n");
 
 	printf("输入待截切音频的通道数：");
-	scanf("%d", num);
+	scanf("%d", &num);
 	printf("\n");
 
 	ClassAudioTool at;
