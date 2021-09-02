@@ -21,6 +21,9 @@
     <ClCompile Include="ClassAudioTool.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
+    <ClCompile Include="ClassDebug.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="ClassAudioTool.h">
@@ -30,6 +33,9 @@
       <Filter>头文件</Filter>
     </ClInclude>
     <ClInclude Include="audioType.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="ClassDebug.h">
       <Filter>头文件</Filter>
     </ClInclude>
   </ItemGroup>

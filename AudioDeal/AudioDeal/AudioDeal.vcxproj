@@ -140,11 +140,13 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="ClassAudioTool.cpp" />
+    <ClCompile Include="ClassDebug.cpp" />
     <ClCompile Include="main.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="audioType.h" />
     <ClInclude Include="ClassAudioTool.h" />
+    <ClInclude Include="ClassDebug.h" />
     <ClInclude Include="generalType.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

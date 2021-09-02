@@ -1,4 +1,6 @@
+
 #include "ClassAudioTool.h"
+#include "ClassDebug.h"
 
 #include <stdio.h>
 #include <iostream>
@@ -10,7 +12,7 @@ int main()
 	char tm1[128] = { 0 };
 	char tm2[128] = { 0 };
 	int num = 0;
-	
+#if 0
 	printf("输入需截切的音频文件：");
 	scanf("%s",tm1);
 	printf("\n");
@@ -27,6 +29,12 @@ int main()
 	int ret = 0;
 	ret = at.audioCut(tm1, tm2, num);
 	printf("audioCut ret is %d\n", ret);
+#endif
+
+	ClassDebug &cd = ClassDebug::getInStance();
+	ClassDebug &cd2 = ClassDebug::getInStance();
+	string str = "";
+	cd.debugLog(str, 0);
 
 	return 0;
 }
