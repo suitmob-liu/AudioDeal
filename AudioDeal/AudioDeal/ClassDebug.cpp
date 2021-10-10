@@ -42,6 +42,22 @@ void ClassDebug::debugLog(string& inputDebug, u16_t logLevel)
 	fwrite(writeData.c_str(), 1, writeData.size(), m_pFileLog);
 }
 
+void ClassDebug::debugLog(const char* inputChar, u16_t logLevel)
+{
+	string time = getCurrentTime();
+	string inputDebug = inputChar;
+	string writeData = "";
+	writeData += "[";
+	writeData += time;
+	writeData += "]";
+	writeData += "  ";
+	writeData += inputDebug;
+	writeData += "\n";
+	printf("write data is %s\n", writeData.c_str());
+
+	fwrite(writeData.c_str(), 1, writeData.size(), m_pFileLog);
+}
+
 string ClassDebug::getCurrentTime()
 {
 #if 0 

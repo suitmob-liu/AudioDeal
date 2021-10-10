@@ -16,12 +16,12 @@ ClassAudioTool::~ClassAudioTool()
 
 u32_t ClassAudioTool::audioCut(string inputName, string outPutPath, u16_t channel)
 {
-#if 1
 	char* inRes = NULL;//读取的输入文件内存
 	char* outRes = NULL;//输出文件内存
 	u16_t channelNum = channel;//通道数
 	string openFileName = inputName;
-
+	ClassDebug &nDebug = ClassDebug::getInStance();
+	string strLog = "";
 
 	//need to check file exist
 
@@ -60,9 +60,9 @@ u32_t ClassAudioTool::audioCut(string inputName, string outPutPath, u16_t channe
 	fclose(fileIn);
 #else
 	u32_t ret = AUDIO_SUCCESS;
-	u32_t fileSize = 0;
-	ret = readFile(openFileName, inRes, fileSize);
-	u32_t sizeRes = fileSize / channelNum;//单声道文件大小
+	u64_t fileSize = 0;
+	ret = readFile(openFileName, &inRes, fileSize);
+	u64_t sizeRes = fileSize / channelNum;//单声道文件大小
 #endif // OLDLOGIC
 
 	outRes = (char*)malloc(sizeof(char) * sizeRes);
@@ -76,9 +76,9 @@ u32_t ClassAudioTool::audioCut(string inputName, string outPutPath, u16_t channe
 		memset(outRes, 0, sizeRes * sizeof(char));
 		unsigned char fileIndex = numIndex + 1;
 		sprintf(fileName, "/outFile_%d.pcm", fileIndex);
-		u32_t numD = numIndex * 2;
-		u32_t j = 0;
-		for (u32_t i = 0; i < fileSize; i += channelNum * 2)
+		u16_t numD = numIndex * 2;
+		u64_t j = 0;
+		for (u64_t i = 0; i < fileSize; i += channelNum * 2)
 		{
 			outRes[j] = inRes[i + numD];
 			outRes[j + 1] = inRes[i + 1 + numD];
@@ -92,6 +92,8 @@ u32_t ClassAudioTool::audioCut(string inputName, string outPutPath, u16_t channe
 		if (fp2 == NULL)
 		{
 			printf("open file failure\n");
+			strLog = "open file failure\n";
+			nDebug.debugLog(strLog);
 			return AUDIO_OPEN_FILE_FAILURE;
 		}
 		int ret = fwrite(outRes, sizeof(char), sizeRes, fp2);
@@ -113,7 +115,6 @@ u32_t ClassAudioTool::audioCut(string inputName, string outPutPath, u16_t channe
 		free(outRes);
 		outRes = NULL;
 	}
-#endif
 	return AUDIO_SUCCESS;
 }
 
@@ -137,13 +138,23 @@ u32_t ClassAudioTool::audioJoint()
 	u64_t fileSizeTmp3 = 0;
 	u64_t fileSizeTmp4 = 0;
 
-	ret = readFile(pathNameTmp1, fileResTmp1, fileSizeTmp1);
-	ret = readFile(pathNameTmp2, fileResTmp2, fileSizeTmp2);
-	ret = readFile(pathNameTmp3, fileResTmp3, fileSizeTmp3);
-	ret = readFile(pathNameTmp4, fileResTmp4, fileSizeTmp4);
+	pathNameTmp1 = "D:\\SOFT\\audioCut\\out0.pcm";
+	pathNameTmp2 = "D:\\SOFT\\audioCut\\out1.pcm";
+	pathNameTmp3 = "D:\\SOFT\\audioCut\\out2.pcm";
+	pathNameTmp4 = "D:\\SOFT\\audioCut\\out3.pcm";
+
+	ret = readFile(pathNameTmp1, &fileResTmp1, fileSizeTmp1);
+	ret = readFile(pathNameTmp2, &fileResTmp2, fileSizeTmp2);
+	ret = readFile(pathNameTmp3, &fileResTmp3, fileSizeTmp3);
+	ret = readFile(pathNameTmp4, &fileResTmp4, fileSizeTmp4);
+	if (ret != 0)
+	{
+		printf("fail to readFile\n");
+		return AUDIO_FAILE;
+	}
 
 	u64_t fileSizeSum = fileSizeTmp1 + fileSizeTmp2 + fileSizeTmp3 + fileSizeTmp4;//当作参数透传出去
-	char* fileResSum = NULL;//当作参数透传出去
+	char* fileResSum = NULL;
 	fileResSum = (char*)malloc(fileSizeSum);
 	u64_t j = 0;
 	for (u64_t i = 0; i < fileSizeSum; i += 8)
@@ -162,9 +173,9 @@ u32_t ClassAudioTool::audioJoint()
 		j += 2;
 	}
 
-	string outPath = "./pcm/outFile.pcm";
-	FILE* fp = fopen(outPath.c_str(), "w+");
-	fwrite(fileResSum, 1, fileSizeSum, fp);
+	string outPath = "./outFile.pcm";
+	FILE* fp = fopen(outPath.c_str(), "wb+");
+	fwrite(fileResSum, sizeof(char), fileSizeSum, fp);
 	fclose(fp);
 
 	if (fileResSum != NULL)
@@ -173,11 +184,33 @@ u32_t ClassAudioTool::audioJoint()
 		fileResSum = NULL;
 	}
 
+	if (fileResTmp1 != NULL)
+	{
+		free(fileResTmp1);
+		fileSizeTmp1 = NULL;
+	}
+	if (fileResTmp2 != NULL)
+	{
+		free(fileResTmp2);
+		fileResTmp2 = NULL;
+	}
+	if (fileResTmp3 != NULL)
+	{
+		free(fileResTmp3);
+		fileResTmp3 = NULL;
+	}
+	if (fileResTmp4 != NULL)
+	{
+		free(fileResTmp4);
+		fileSizeTmp4 = NULL;
+	}
+
 	return 0;
 }
 
-u32_t ClassAudioTool::readFile(string& filePath, char* outRes, u32_t fileSize)
+u32_t ClassAudioTool::readFile(string& filePath, char** pRes, u64_t& fileSize)
 {
+	char* tmp = NULL;
 	FILE* inputHandle = NULL;
 	inputHandle = fopen(filePath.c_str(), "r");
 	if (inputHandle == NULL)
@@ -191,12 +224,12 @@ u32_t ClassAudioTool::readFile(string& filePath, char* outRes, u32_t fileSize)
 	resSize = ftell(inputHandle);
 	fseek(inputHandle, 0, SEEK_SET);
 
-	m_pFileRes = (char*)malloc(resSize);
-	memset(m_pFileRes, 0, resSize);
-	fread(m_pFileRes, 1, resSize, inputHandle);
+	tmp = (char*)malloc(resSize);
+	memset(tmp, 0, resSize);
+	fread(tmp, 1, resSize, inputHandle);
 	fclose(inputHandle);
 	inputHandle = NULL;
-	outRes = m_pFileRes;
+	*pRes = tmp;
 	fileSize = resSize;
 	return AUDIO_SUCCESS;
 }

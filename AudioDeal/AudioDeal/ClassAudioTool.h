@@ -2,6 +2,7 @@
 
 #include "audioType.h"
 #include "generalType.h"
+#include "ClassDebug.h"
 
 #include <stdio.h>
 #include <string>
@@ -24,7 +25,7 @@ private:
 	* return：	AUDIO_OPEN_FILE_FAILURE：	文件不存在
 	*			AUDIO_SUCCESS：				运行成功
 	*/
-	u32_t readFile(string& filePath, char* outRes, u32_t fileSize); //私有成员函数。专门读取文件
+	u32_t readFile(string& filePath, char** pRes, u64_t& fileSize); //私有成员函数。专门读取文件
 
 private:
 	FILE* fileIn;		//输入文件

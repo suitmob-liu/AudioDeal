@@ -17,6 +17,7 @@ public:
 	static ClassDebug& getInStance();
 	//传入字符串写入日志文件
 	void debugLog(string& inputDebug, u16_t logLevel = 1);
+	void debugLog(const char * inputChar, u16_t logLevel = 1);
 
 private:
 	//获取系统时间，当前精度为秒，后续需要修改为毫秒级
