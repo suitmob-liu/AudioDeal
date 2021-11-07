@@ -1,4 +1,7 @@
+
 #include "ClassAudioTool.h"
+#include <io.h>
+
 #pragma warning(disable:4996)
 
 ClassAudioTool::ClassAudioTool()
@@ -118,11 +121,11 @@ u32_t ClassAudioTool::audioCut(string inputName, string outPutPath, u16_t channe
 	return AUDIO_SUCCESS;
 }
 
-u32_t ClassAudioTool::audioJoint()
+u32_t ClassAudioTool::audioJoint(u16_t nChannel)
 {
 	u32_t ret = AUDIO_SUCCESS;
 	u16_t fileNum;//单声道文件个数。后期由UI判断
-	fileNum = 4;
+	fileNum = nChannel;
 	string pathNameTmp1;//文件名称，后期通过UI加载
 	string pathNameTmp2;
 	string pathNameTmp3;
@@ -208,6 +211,82 @@ u32_t ClassAudioTool::audioJoint()
 	return 0;
 }
 
+u32_t ClassAudioTool::audioCompound(string inPath, string filter)
+{
+	u32_t ret = AUDIO_SUCCESS;
+	vector<string> files;
+	getFilesFilter(inPath, files, filter);
+	int fileNum = files.size();
+	if (fileNum == 0)
+		return AUDIO_FILE_NOT_FOUND;
+
+	int j = 0;
+	char* fileResIn = NULL;
+	u64_t fileSizeIn = 0;
+	u64_t fileSizeSum = 0;
+	char* fileResSum = NULL;
+
+	for (int i = 0; i < fileNum; i++)
+	{
+		j = 0;
+		ret = readFile(files[i], &fileResIn, fileSizeIn);
+		if (ret != AUDIO_SUCCESS)
+		{
+			printf("readFile ret %d", ret);
+			return ret;
+		}
+
+		if (i == 0)
+		{
+			fileSizeSum = fileSizeIn * fileNum;
+			fileResSum = (char*)malloc(fileSizeSum);
+			memset(fileResSum, 0, fileSizeSum);
+		}
+
+		for (u64_t a = 0; a < fileSizeSum- fileNum*2; a += fileNum * 2)
+		{
+			fileResSum[a + i*2] = fileResIn[j];
+			fileResSum[a + 1 + i*2] = fileResIn[j + 1];
+
+			j += 2;
+		}
+		if (fileResIn)
+		{
+			free(fileResIn);
+			fileResIn = NULL;
+		}
+	}
+
+	string outPath = inPath;
+	outPath += "/outPutFile.pcm";//需要多一层判断该文件是否已存在
+	FILE* fp = fopen(outPath.c_str(), "wb+");
+	fwrite(fileResSum, sizeof(char), fileSizeSum, fp);
+	fclose(fp);
+	fp = NULL;
+
+	if (fileResSum)
+	{
+		free(fileResSum);
+		fileResSum = NULL;
+	}
+
+	return ret;
+}
+
+void ClassAudioTool::test()
+{
+	string path;
+	vector<string> files;
+	string filter = "out";
+	path = "D:\\CODE\\work\\Audio\\AudioDeal\\AudioDeal\\pcm";
+	//getFiles(path, files);
+	getFilesFilter(path, files, filter);
+	for (int i = 0; i < files.size(); i++)
+	{
+		printf("file name is %s\n", files[i].c_str());
+	}
+}
+
 u32_t ClassAudioTool::readFile(string& filePath, char** pRes, u64_t& fileSize)
 {
 	char* tmp = NULL;
@@ -232,4 +311,60 @@ u32_t ClassAudioTool::readFile(string& filePath, char** pRes, u64_t& fileSize)
 	*pRes = tmp;
 	fileSize = resSize;
 	return AUDIO_SUCCESS;
+}
+
+void ClassAudioTool::getFiles(string path, vector<string>& files)
+{
+	//文件句柄
+	intptr_t   hFile = 0;
+	//文件信息
+	struct _finddata_t fileinfo;
+	string p;
+	if ((hFile = _findfirst(p.assign(path).append("\\*").c_str(), &fileinfo)) != -1)
+	{
+		do
+		{
+			//如果是目录,迭代之
+			//如果不是,加入列表
+			if ((fileinfo.attrib & _A_SUBDIR))
+			{
+				if (strcmp(fileinfo.name, ".") != 0 && strcmp(fileinfo.name, "..") != 0)
+					getFiles(p.assign(path).append("\\").append(fileinfo.name), files);
+			}
+			else
+			{
+				files.push_back(p.assign(path).append("\\").append(fileinfo.name));
+			}
+		} while (_findnext(hFile, &fileinfo) == 0);
+		_findclose(hFile);
+	}
+}
+
+void ClassAudioTool::getFilesFilter(string path, vector<string>& files, string Filter)
+{
+	//文件句柄
+	intptr_t   hFile = 0;
+	//文件信息
+	struct _finddata_t fileinfo;
+	string p;
+	char temp[100] = { 0 };
+	sprintf(temp,"\\%s*.pcm", Filter.c_str());
+	if ((hFile = _findfirst(p.assign(path).append(temp).c_str(), &fileinfo)) != -1)
+	{
+		do
+		{
+			//如果是目录,迭代之
+			//如果不是,加入列表
+			if ((fileinfo.attrib & _A_SUBDIR))
+			{
+				if (strcmp(fileinfo.name, ".") != 0 && strcmp(fileinfo.name, "..") != 0)
+					getFiles(p.assign(path).append("\\").append(fileinfo.name), files);
+			}
+			else
+			{
+				files.push_back(p.assign(path).append("\\").append(fileinfo.name));
+			}
+		} while (_findnext(hFile, &fileinfo) == 0);
+		_findclose(hFile);
+	}
 }

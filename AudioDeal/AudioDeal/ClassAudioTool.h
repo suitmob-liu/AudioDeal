@@ -6,6 +6,7 @@
 
 #include <stdio.h>
 #include <string>
+#include <vector>
 
 using namespace std;
 
@@ -16,7 +17,11 @@ public:
 	~ClassAudioTool();
 
 	u32_t audioCut(string inputName, string outPutPath, u16_t channel);//多声道拆解为单声道
-	u32_t audioJoint();//单声道转多声道
+	u32_t audioJoint(u16_t nChannel);//单声道转多声道
+
+	u32_t audioCompound(string inPath, string filter);
+
+	void test();
 
 private:
 	/*
@@ -26,6 +31,9 @@ private:
 	*			AUDIO_SUCCESS：				运行成功
 	*/
 	u32_t readFile(string& filePath, char** pRes, u64_t& fileSize); //私有成员函数。专门读取文件
+
+	void getFiles(string path, vector<string>& files);
+	void getFilesFilter (string path, vector<string>& files, string Filter);
 
 private:
 	FILE* fileIn;		//输入文件
