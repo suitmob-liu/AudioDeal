@@ -21,6 +21,8 @@ public:
 
 	u32_t audioCompound(string inPath, string filter);
 
+	u32_t audioSplicing(string inPath);
+
 	void test();
 
 private:

@@ -215,7 +215,8 @@ u32_t ClassAudioTool::audioCompound(string inPath, string filter)
 {
 	u32_t ret = AUDIO_SUCCESS;
 	vector<string> files;
-	getFilesFilter(inPath, files, filter);
+	//getFilesFilter(inPath, files, filter);
+	getFiles(inPath, files);
 	int fileNum = files.size();
 	if (fileNum == 0)
 		return AUDIO_FILE_NOT_FOUND;
@@ -271,6 +272,60 @@ u32_t ClassAudioTool::audioCompound(string inPath, string filter)
 	}
 
 	return ret;
+}
+
+u32_t ClassAudioTool::audioSplicing(string inPath)
+{
+	u32_t ret = AUDIO_SUCCESS;
+	vector<string> files;
+	ClassDebug& nDebug = ClassDebug::getInStance();
+	getFiles(inPath, files);
+	string strLog;
+
+	int fileNum = files.size();
+	if (fileNum == 0)
+		return AUDIO_FILE_NOT_FOUND;
+	for (int i = 0; i < fileNum; i++)
+	{
+		printf("file name is %s\n", files[i].c_str());
+		strLog = "file name is";
+		strLog += files[i];
+		nDebug.debugLog(strLog);
+	}
+
+	char* fileResIn = NULL;
+	u64_t fileSizeIn = 0;
+	char* fileResSum = NULL;
+	
+	string outPath = inPath;
+	outPath += "/outPutFile.pcm";//需要多一层判断该文件是否已存在
+	FILE* fp = fopen(outPath.c_str(), "ab");
+	if (fp == NULL)
+	{
+		printf("open file %s failure\n", outPath.c_str());
+	}
+
+	for (int i = 0; i < fileNum; i++)
+	{
+		ret = readFile(files[i], &fileResIn, fileSizeIn);
+		printf("fileSizeIn is %d\n", fileSizeIn);
+		if (fileResIn != NULL && fp != NULL)
+		{
+			fwrite(fileResIn, sizeof(char), fileSizeIn, fp);
+		}
+
+		if (fileResIn)
+		{
+			free(fileResIn);
+			fileResIn = NULL;
+		}
+	}
+	if (fp)
+	{
+		fclose(fp);
+	}
+
+	return AUDIO_SUCCESS;
 }
 
 void ClassAudioTool::test()
@@ -348,7 +403,7 @@ void ClassAudioTool::getFilesFilter(string path, vector<string>& files, string F
 	struct _finddata_t fileinfo;
 	string p;
 	char temp[100] = { 0 };
-	sprintf(temp,"\\%s*.pcm", Filter.c_str());
+	sprintf(temp,"\\%s*", Filter.c_str());
 	if ((hFile = _findfirst(p.assign(path).append(temp).c_str(), &fileinfo)) != -1)
 	{
 		do

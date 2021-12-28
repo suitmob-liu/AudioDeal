@@ -22,7 +22,8 @@ int main()
 	while (1)
 	{
 		printf("剪切音频输入1\n"
-			"合成音频输入2\n");
+			"合成音频输入2\n"
+			"拼接音频输入3\n");
 		scanf("%d", &functionTest);
 		printf("\n");
 
@@ -34,6 +35,10 @@ int main()
 		{
 			break;
 		}
+		else if (functionTest == 3)
+		{
+			break;
+		}
 		else
 		{
 			printf("输入错误，请重新输入\n");
@@ -42,7 +47,6 @@ int main()
 
 	memset(tm1, 0, 128);
 	memset(tm2, 0, 128);
-
 	switch (functionTest)
 	{
 	case 1:
@@ -70,6 +74,14 @@ int main()
 		testFunction.audioCompound(tm1, str);
 
 		printf("合成成功\n");
+		break;
+	case 3:
+		printf("输入需拼接的音频文件路径：");
+		scanf("%s", tm1);
+		printf("\n");
+
+		testFunction.audioSplicing(tm1);
+		printf("拼接结束\n");
 		break;
 	default:
 		break;

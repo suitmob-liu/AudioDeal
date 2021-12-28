@@ -37,7 +37,7 @@ void ClassDebug::debugLog(string& inputDebug, u16_t logLevel)
 	writeData += "  ";
 	writeData += inputDebug;
 	writeData += "\n";
-	printf("write data is %s\n", writeData.c_str());
+	//printf("write data is %s\n", writeData.c_str());
 
 	fwrite(writeData.c_str(), 1, writeData.size(), m_pFileLog);
 }
