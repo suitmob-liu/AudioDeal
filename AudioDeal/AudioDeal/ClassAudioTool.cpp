@@ -215,8 +215,11 @@ u32_t ClassAudioTool::audioCompound(string inPath, string filter)
 {
 	u32_t ret = AUDIO_SUCCESS;
 	vector<string> files;
-	//getFilesFilter(inPath, files, filter);
-	getFiles(inPath, files);
+	filter = "pcm";
+	getFilesFilter(inPath, files, filter);
+	filter = "wav";
+	getFilesFilter(inPath, files, filter);
+	//getFiles(inPath, files);
 	int fileNum = files.size();
 	if (fileNum == 0)
 		return AUDIO_FILE_NOT_FOUND;
@@ -403,7 +406,7 @@ void ClassAudioTool::getFilesFilter(string path, vector<string>& files, string F
 	struct _finddata_t fileinfo;
 	string p;
 	char temp[100] = { 0 };
-	sprintf(temp,"\\%s*", Filter.c_str());
+	sprintf(temp,"\\*.%s", Filter.c_str());
 	if ((hFile = _findfirst(p.assign(path).append(temp).c_str(), &fileinfo)) != -1)
 	{
 		do
