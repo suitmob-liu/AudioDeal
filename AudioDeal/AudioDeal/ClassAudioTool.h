@@ -19,9 +19,11 @@ public:
 	u32_t audioCut(string inputName, string outPutPath, u16_t channel);//多声道拆解为单声道
 	u32_t audioJoint(u16_t nChannel);//单声道转多声道
 
-	u32_t audioCompound(string inPath, string filter);
+	u32_t audioCompound(string inPath, string filter);//合成音频，多个单声道合成一个多声道音频
 
-	u32_t audioSplicing(string inPath);
+	u32_t audioSplicing(string inPath);//多个短音频按文件名称拼接成一个长音频
+
+	u32_t audioCutForTime(string inputName, u16_t channel, u16_t nStartTime, u16_t nEndTime);//一个音频文件获取指定片段的音频
 
 	void test();
 

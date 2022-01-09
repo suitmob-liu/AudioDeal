@@ -13,17 +13,19 @@ int main()
 	char tm1[128] = { 0 };
 	char tm2[128] = { 0 };
 	int num = 0;
+	int startTime = 0, endTime = 0;
 	ClassAudioTool testFunction;
-	ClassAudioTool at;
+	//ClassAudioTool at;
 	int ret = 0;
 	string str;
 	int functionTest = 0;
 
 	while (1)
 	{
-		printf("剪切音频输入1\n"
-			"合成音频输入2\n"
-			"拼接音频输入3\n");
+		printf("剪切音频******************************输入1\n"
+			"合成音频******************************输入2\n"
+			"拼接音频******************************输入3\n"
+			"获取指定片段音频（根据时间）**********输入4\n");
 		scanf("%d", &functionTest);
 		printf("\n");
 
@@ -36,6 +38,10 @@ int main()
 			break;
 		}
 		else if (functionTest == 3)
+		{
+			break;
+		}
+		else if (functionTest == 4)
 		{
 			break;
 		}
@@ -62,7 +68,7 @@ int main()
 		scanf("%d", &num);
 		printf("\n");
 
-		ret = at.audioCut(tm1, tm2, num);
+		ret = testFunction.audioCut(tm1, tm2, num);
 		printf("audioCut ret is %d\n", ret);
 		break;
 	case 2:
@@ -82,6 +88,26 @@ int main()
 
 		testFunction.audioSplicing(tm1);
 		printf("拼接结束\n");
+		break;
+	case 4:
+		printf("输入需截切的音频文件：");
+		scanf("%s", tm1);
+		printf("\n");
+
+		printf("输入待截切音频的通道数：");
+		scanf("%d", &num);
+		printf("\n");
+
+		printf("输入待截切音频的起始点：(单位秒)");
+		scanf("%d", &startTime);
+		printf("\n");
+
+		printf("输入待截切音频的终点：(单位秒)");
+		scanf("%d", &endTime);
+		printf("\n");
+
+		ret = testFunction.audioCutForTime(tm1, num, startTime, endTime);
+		printf("audioCutForTime ret is %d\n", ret);
 		break;
 	default:
 		break;

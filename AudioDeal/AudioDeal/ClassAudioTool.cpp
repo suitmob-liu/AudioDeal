@@ -26,47 +26,10 @@ u32_t ClassAudioTool::audioCut(string inputName, string outPutPath, u16_t channe
 	ClassDebug &nDebug = ClassDebug::getInStance();
 	string strLog = "";
 
-	//need to check file exist
-
-#ifdef OLDLOGIC
-	//参数检查
-	fileIn = fopen(openFileName.c_str(), "w+");
-	if (fileIn == NULL)
-	{
-		printf("open file failure\n");
-		return AUDIO_OPEN_FILE_FAILURE;
-	}
-
-	if (channelNum >= 1 && channelNum <= 16)
-	{
-		if (channelNum != (u16_t)channelNum)
-		{
-			printf("The Param is invalid and Param is decimal!\n");
-			return AUDIO_INVAIID_PARAM;
-		}
-	}
-	else
-	{
-		printf("The Param is invalid\n");
-		return AUDIO_INVAIID_PARAM;
-	}
-
-	u32_t size = 0;//文件大小
-	fseek(fileIn, 0, SEEK_END);
-	size = ftell(fileIn);
-	fseek(fileIn, 0, SEEK_SET);
-
-	u32_t sizeRes = size / channelNum;//单声道文件大小
-	inRes = (char*)malloc(sizeof(char) * size);
-	memset(inRes, 0, size * sizeof(char));
-	fread(inRes, sizeof(char), size, fileIn);
-	fclose(fileIn);
-#else
 	u32_t ret = AUDIO_SUCCESS;
 	u64_t fileSize = 0;
 	ret = readFile(openFileName, &inRes, fileSize);
 	u64_t sizeRes = fileSize / channelNum;//单声道文件大小
-#endif // OLDLOGIC
 
 	outRes = (char*)malloc(sizeof(char) * sizeRes);
 	string outPath = outPutPath;
@@ -237,6 +200,11 @@ u32_t ClassAudioTool::audioCompound(string inPath, string filter)
 		if (ret != AUDIO_SUCCESS)
 		{
 			printf("readFile ret %d", ret);
+			if (fileResIn)
+			{
+				free(fileResIn);
+				fileResIn = NULL;
+			}
 			return ret;
 		}
 
@@ -282,7 +250,11 @@ u32_t ClassAudioTool::audioSplicing(string inPath)
 	u32_t ret = AUDIO_SUCCESS;
 	vector<string> files;
 	ClassDebug& nDebug = ClassDebug::getInStance();
-	getFiles(inPath, files);
+	string filter = "pcm";
+	getFilesFilter(inPath, files, filter);
+	filter = "wav";
+	getFilesFilter(inPath, files, filter);
+	//getFiles(inPath, files);
 	string strLog;
 
 	int fileNum = files.size();
@@ -311,6 +283,16 @@ u32_t ClassAudioTool::audioSplicing(string inPath)
 	for (int i = 0; i < fileNum; i++)
 	{
 		ret = readFile(files[i], &fileResIn, fileSizeIn);
+		if (ret != AUDIO_SUCCESS)
+		{
+			printf("readFile ret %d", ret);
+			if (fileResIn)
+			{
+				free(fileResIn);
+				fileResIn = NULL;
+			}
+			return ret;
+		}
 		printf("fileSizeIn is %d\n", fileSizeIn);
 		if (fileResIn != NULL && fp != NULL)
 		{
@@ -329,6 +311,59 @@ u32_t ClassAudioTool::audioSplicing(string inPath)
 	}
 
 	return AUDIO_SUCCESS;
+}
+
+u32_t ClassAudioTool::audioCutForTime(string inputName, u16_t channel, u16_t nStartTime, u16_t nEndTime)
+{
+	u32_t ret = AUDIO_SUCCESS;
+	
+	string openFileName = inputName;
+
+	char* fileResOrigin = NULL;
+	u64_t fileSizeOrigin = 0;
+	u64_t fileSizeOut = 0;
+	u64_t nCurIndex = 0;
+
+	fileSizeOut = (nEndTime - nStartTime) * 32000* channel;
+
+	ret = readFile(openFileName, &fileResOrigin, fileSizeOrigin);
+	if (ret != AUDIO_SUCCESS)
+	{
+		printf("readFile ret %d", ret);
+		if (fileResOrigin)
+		{
+			free(fileResOrigin);
+			fileResOrigin = NULL;
+		}
+		return ret;
+	}
+	if (fileSizeOut <= 0 || fileSizeOrigin < fileSizeOut)
+	{
+		printf("Invalid parameter!!!\nnStartTime is %d,nEndTime is %d\norigin file size is %lld\n"
+			,nStartTime,nEndTime, fileSizeOrigin- fileSizeOut);
+		if (fileResOrigin)
+		{
+			free(fileResOrigin);
+			fileResOrigin = NULL;
+		}
+	}
+
+	nCurIndex = nStartTime * 32000* channel;
+	string outPath = inputName;
+	outPath += "outPutTime.pcm";
+	FILE* fp2 = NULL;
+	fp2 = fopen(outPath.c_str(), "wb+");
+	fwrite(fileResOrigin + nCurIndex, sizeof(char), fileSizeOut, fp2);
+	fclose(fp2);
+	fp2 = NULL;
+
+	if (fileResOrigin)
+	{
+		free(fileResOrigin);
+		fileResOrigin = NULL;
+	}
+
+	return ret;
 }
 
 void ClassAudioTool::test()
