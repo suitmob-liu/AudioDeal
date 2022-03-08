@@ -19,13 +19,15 @@ int main()
 	int ret = 0;
 	string str;
 	int functionTest = 0;
+	int times = 0;
 
 	while (1)
 	{
 		printf("剪切音频******************************输入1\n"
 			"合成音频******************************输入2\n"
 			"拼接音频******************************输入3\n"
-			"获取指定片段音频（根据时间）**********输入4\n");
+			"获取指定片段音频（根据时间）**********输入4\n"
+			"剪切大文件音频（超过2G文件）**********输入5\n");
 		scanf("%d", &functionTest);
 		printf("\n");
 
@@ -45,9 +47,14 @@ int main()
 		{
 			break;
 		}
+		else if (functionTest == 5)
+		{
+			break;
+		}
 		else
 		{
 			printf("输入错误，请重新输入\n");
+			times++;
 		}
 	}
 
@@ -108,6 +115,22 @@ int main()
 
 		ret = testFunction.audioCutForTime(tm1, num, startTime, endTime);
 		printf("audioCutForTime ret is %d\n", ret);
+		break;
+	case 5:
+		printf("输入需截切的音频文件：");
+		scanf("%s", tm1);
+		printf("\n");
+
+		printf("输入生成音频文件路径：");
+		scanf("%s", tm2);
+		printf("\n");
+
+		printf("输入待截切音频的通道数：");
+		scanf("%d", &num);
+		printf("\n");
+
+		ret = testFunction.audioCutForBigFile(tm1, tm2, num);
+		printf("audioCut ret is %d\n", ret);
 		break;
 	default:
 		break;

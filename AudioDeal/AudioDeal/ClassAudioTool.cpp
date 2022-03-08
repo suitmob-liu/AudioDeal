@@ -4,6 +4,8 @@
 
 #pragma warning(disable:4996)
 
+#define FIXSIZE (200*1024*1024)
+
 ClassAudioTool::ClassAudioTool()
 {
 }
@@ -313,7 +315,7 @@ u32_t ClassAudioTool::audioSplicing(string inPath)
 	return AUDIO_SUCCESS;
 }
 
-u32_t ClassAudioTool::audioCutForTime(string inputName, u16_t channel, u16_t nStartTime, u16_t nEndTime)
+u32_t ClassAudioTool::audioCutForTime(string inputName, u16_t channel, u64_t nStartTime, u64_t nEndTime)
 {
 	u32_t ret = AUDIO_SUCCESS;
 	
@@ -363,6 +365,74 @@ u32_t ClassAudioTool::audioCutForTime(string inputName, u16_t channel, u16_t nSt
 		fileResOrigin = NULL;
 	}
 
+	return ret;
+}
+
+u32_t ClassAudioTool::audioCutForBigFile(string inputName, string outPutPath, u16_t channel)
+{
+	u32_t ret = AUDIO_SUCCESS;
+
+	ClassDebug& nDebug = ClassDebug::getInStance();
+	u64_t resSize = 0,writeSize = 0;
+	string outPutName;
+	char* tmp = NULL, * outRes = NULL;
+	FILE* inputHandle = NULL;
+	inputHandle = fopen(inputName.c_str(), "rb+");
+	if (inputHandle == NULL)
+	{
+		printf("open file failure\n");
+		return AUDIO_OPEN_FILE_FAILURE;
+	}
+	fseek(inputHandle, 0, SEEK_SET);
+	u64_t fileSize = 0;
+	fileSize = channel * FIXSIZE;
+	tmp = new char[fileSize];
+	outRes = new char[fileSize / channel];
+	u64_t outResIndex = 0;
+
+	for(int fileIndex = 0; fileIndex < channel; fileIndex++)
+	{
+		outPutName = outPutPath;
+		outPutName += "./LargeAudio_";
+		outPutName += to_string(fileIndex);
+		outPutName += ".pcm";
+		fseek(inputHandle, 0, SEEK_SET);
+		FILE* tempFP = fopen(outPutName.c_str(), "wb+");
+		memset(tmp, 0, sizeof(tmp));
+		memset(outRes, 0, sizeof(outRes));
+		outResIndex = 0;
+		nDebug.debugLog("CALL audioCutForBigFile begin every times");
+		while (!feof(inputHandle))
+		{
+			nDebug.debugLog("CALL audioCutForBigFile begin fread begin");
+			writeSize = fread(tmp, 100, fileSize / 100, inputHandle);
+			writeSize *= 100;
+			nDebug.debugLog("CALL audioCutForBigFile begin fread end");
+			for (u64_t outIndex = 0; outIndex < writeSize; outIndex += (channel * 2))
+			{
+				outRes[outResIndex] = tmp[outIndex + fileIndex * 2];
+				outRes[outResIndex + 1] = tmp[outIndex + 1 + fileIndex * 2];
+				outResIndex += 2;
+			}
+			nDebug.debugLog("CALL audioCutForBigFile begin fwrite begin");
+			fwrite(outRes, 1, writeSize / channel, tempFP);
+			nDebug.debugLog("CALL audioCutForBigFile begin fwrite end");
+			memset(outRes, 0, sizeof(outRes));
+			outResIndex = 0;
+		}
+		fclose(tempFP);
+		tempFP = NULL;
+	}
+
+	if (outRes != NULL)
+	{
+		delete[] outRes;
+	}
+	if (tmp != NULL)
+	{
+		delete[] tmp;
+	}
+	nDebug.debugLog("CALL audioCutForBigFile over");
 	return ret;
 }
 

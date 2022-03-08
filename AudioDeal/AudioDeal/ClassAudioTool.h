@@ -23,7 +23,9 @@ public:
 
 	u32_t audioSplicing(string inPath);//多个短音频按文件名称拼接成一个长音频
 
-	u32_t audioCutForTime(string inputName, u16_t channel, u16_t nStartTime, u16_t nEndTime);//一个音频文件获取指定片段的音频
+	u32_t audioCutForTime(string inputName, u16_t channel, u64_t nStartTime, u64_t nEndTime);//一个音频文件获取指定片段的音频
+
+	u32_t audioCutForBigFile(string inputName, string outPutPath, u16_t channel);
 
 	void test();
 
