@@ -30,7 +30,9 @@ u32_t ClassAudioTool::audioCut(string inputName, string outPutPath, u16_t channe
 
 	u32_t ret = AUDIO_SUCCESS;
 	u64_t fileSize = 0;
+	bool isWavAudio = false;
 	ret = readFile(openFileName, &inRes, fileSize);
+
 	u64_t sizeRes = fileSize / channelNum;//单声道文件大小
 
 	outRes = (char*)malloc(sizeof(char) * sizeRes);
@@ -180,14 +182,32 @@ u32_t ClassAudioTool::audioCompound(string inPath, string filter)
 {
 	u32_t ret = AUDIO_SUCCESS;
 	vector<string> files;
+	bool fileAlready = false;
 	filter = "pcm";
 	getFilesFilter(inPath, files, filter);
-	filter = "wav";
-	getFilesFilter(inPath, files, filter);
+	if (files.size() != 0)
+	{
+		fileAlready = true;
+	}
+	if (!fileAlready)
+	{
+		filter = "wav";
+		getFilesFilter(inPath, files, filter);
+	}
 	//getFiles(inPath, files);
 	int fileNum = files.size();
 	if (fileNum == 0)
+	{
 		return AUDIO_FILE_NOT_FOUND;
+	}
+	else
+	{
+		for (int ifileName = 0; ifileName < files.size(); ifileName++)
+		{
+			printf("file name is %s\n", files[ifileName].c_str());
+		}
+	}
+
 
 	int j = 0;
 	char* fileResIn = NULL;
@@ -461,7 +481,7 @@ u32_t ClassAudioTool::readFile(string& filePath, char** pRes, u64_t& fileSize)
 		return AUDIO_OPEN_FILE_FAILURE;
 	}
 
-	u32_t resSize = 0;
+	u64_t resSize = 0;
 	fseek(inputHandle, 0, SEEK_END);
 	resSize = ftell(inputHandle);
 	fseek(inputHandle, 0, SEEK_SET);
@@ -471,6 +491,12 @@ u32_t ClassAudioTool::readFile(string& filePath, char** pRes, u64_t& fileSize)
 	fread(tmp, 1, resSize, inputHandle);
 	fclose(inputHandle);
 	inputHandle = NULL;
+
+	if (memcmp(tmp, "RIFF", 4) == 0)
+	{
+		resSize = resSize - 44;
+		memmove(tmp, tmp + 44, resSize);
+	}
 	*pRes = tmp;
 	fileSize = resSize;
 	return AUDIO_SUCCESS;

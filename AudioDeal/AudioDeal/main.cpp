@@ -28,41 +28,46 @@ int main()
 			"拼接音频******************************输入3\n"
 			"获取指定片段音频（根据时间）**********输入4\n"
 			"剪切大文件音频（超过2G文件）**********输入5\n");
-		scanf("%d", &functionTest);
-		printf("\n");
+		functionTest = getchar();
 
-		if (functionTest == 1)
+		if (functionTest == '1')
 		{
 			break;
 		}
-		else if (functionTest == 2)
+		else if (functionTest == '2')
 		{
 			break;
 		}
-		else if (functionTest == 3)
+		else if (functionTest == '3')
 		{
 			break;
 		}
-		else if (functionTest == 4)
+		else if (functionTest == '4')
 		{
 			break;
 		}
-		else if (functionTest == 5)
+		else if (functionTest == '5')
 		{
 			break;
 		}
 		else
 		{
-			printf("输入错误，请重新输入\n");
 			times++;
+			printf("输入错误第%d次，请重新输入\n", times);
+			if (times >= 4)
+			{
+				printf("输入任意键退出");
+				system("pause");
+				return 0;
+			}
 		}
 	}
-
+	
 	memset(tm1, 0, 128);
 	memset(tm2, 0, 128);
 	switch (functionTest)
 	{
-	case 1:
+	case '1':
 		printf("输入需截切的音频文件：");
 		scanf("%s", tm1);
 		printf("\n");
@@ -78,7 +83,7 @@ int main()
 		ret = testFunction.audioCut(tm1, tm2, num);
 		printf("audioCut ret is %d\n", ret);
 		break;
-	case 2:
+	case '2':
 		printf("输入需合成的音频文件路径：");
 		scanf("%s", tm1);
 		printf("\n");
@@ -88,7 +93,7 @@ int main()
 
 		printf("合成成功\n");
 		break;
-	case 3:
+	case '3':
 		printf("输入需拼接的音频文件路径：");
 		scanf("%s", tm1);
 		printf("\n");
@@ -96,7 +101,7 @@ int main()
 		testFunction.audioSplicing(tm1);
 		printf("拼接结束\n");
 		break;
-	case 4:
+	case '4':
 		printf("输入需截切的音频文件：");
 		scanf("%s", tm1);
 		printf("\n");
@@ -116,7 +121,7 @@ int main()
 		ret = testFunction.audioCutForTime(tm1, num, startTime, endTime);
 		printf("audioCutForTime ret is %d\n", ret);
 		break;
-	case 5:
+	case '5':
 		printf("输入需截切的音频文件：");
 		scanf("%s", tm1);
 		printf("\n");
@@ -135,46 +140,6 @@ int main()
 	default:
 		break;
 	}
-#if key == 1
-	printf("输入需截切的音频文件：");
-	scanf("%s",tm1);
-	printf("\n");
-
-	printf("输入生成音频文件路径：");
-	scanf("%s", tm2);
-	printf("\n");
-
-	printf("输入待截切音频的通道数：");
-	scanf("%d", &num);
-	printf("\n");
-
-	ClassAudioTool at;
-	int ret = 0;
-	ret = at.audioCut(tm1, tm2, num);
-	printf("audioCut ret is %d\n", ret);
-#elif key == 2
-
-	ClassDebug &cd = ClassDebug::getInStance();
-	ClassDebug &cd2 = ClassDebug::getInStance();
-	string str = "main is run";
-	cd.debugLog(str);
-	ClassAudioTool at2;
-	at2.audioJoint(4);
-	cd.debugLog("run over");
-
-#elif key == 3
-	testFunction.test();
-
-#elif key == 4
-	printf("输入需合成的音频文件路径：");
-	scanf("%s", tm1);
-	printf("\n");
-
-	string str = "out";
-	testFunction.audioCompound(tm1, str);
-
-	printf("合成成功\n");
-#endif
 
 	system("pause");
 
