@@ -200,12 +200,15 @@ u32_t ClassAudioTool::audioCompound(string inPath, string filter)
 	{
 		return AUDIO_FILE_NOT_FOUND;
 	}
-	else
+
+	string strLog;
+	ClassDebug& nDebug = ClassDebug::getInStance();
+	for (int ifileName = 0; ifileName < files.size(); ifileName++)
 	{
-		for (int ifileName = 0; ifileName < files.size(); ifileName++)
-		{
-			printf("file name is %s\n", files[ifileName].c_str());
-		}
+		printf("file name is %s\n", files[ifileName].c_str());
+		strLog = "file name is";
+		strLog += files[ifileName];
+		nDebug.debugLog(strLog);
 	}
 
 
@@ -361,7 +364,7 @@ u32_t ClassAudioTool::audioCutForTime(string inputName, u16_t channel, u64_t nSt
 	}
 	if (fileSizeOut <= 0 || fileSizeOrigin < fileSizeOut)
 	{
-		printf("Invalid parameter!!!\nnStartTime is %d,nEndTime is %d\norigin file size is %lld\n"
+		printf("Invalid parameter!!!\nnStartTime is %lld,nEndTime is %lld\norigin file size is %lld\n"
 			,nStartTime,nEndTime, fileSizeOrigin- fileSizeOut);
 		if (fileResOrigin)
 		{
@@ -474,7 +477,7 @@ u32_t ClassAudioTool::readFile(string& filePath, char** pRes, u64_t& fileSize)
 {
 	char* tmp = NULL;
 	FILE* inputHandle = NULL;
-	inputHandle = fopen(filePath.c_str(), "r");
+	inputHandle = fopen(filePath.c_str(), "rb");
 	if (inputHandle == NULL)
 	{
 		printf("open file failure\n");
