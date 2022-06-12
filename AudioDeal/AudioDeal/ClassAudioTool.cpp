@@ -206,7 +206,7 @@ u32_t ClassAudioTool::audioCompound(string inPath, string filter)
 	for (int ifileName = 0; ifileName < files.size(); ifileName++)
 	{
 		printf("file name is %s\n", files[ifileName].c_str());
-		strLog = "file name is";
+		strLog = "file name is ";
 		strLog += files[ifileName];
 		nDebug.debugLog(strLog);
 	}
@@ -456,6 +456,51 @@ u32_t ClassAudioTool::audioCutForBigFile(string inputName, string outPutPath, u1
 		delete[] tmp;
 	}
 	nDebug.debugLog("CALL audioCutForBigFile over");
+	return ret;
+}
+
+u32_t ClassAudioTool::fileNameOut(string inPath, string filter)
+{
+	u32_t ret = AUDIO_SUCCESS;
+	vector<string> files;
+	bool fileAlready = false;
+	filter = "pcm";
+	getFilesFilter(inPath, files, filter);
+	if (files.size() != 0)
+	{
+		fileAlready = true;
+	}
+	if (!fileAlready)
+	{
+		filter = "wav";
+		getFilesFilter(inPath, files, filter);
+	}
+	int fileNum = files.size();
+	if (fileNum == 0)
+	{
+		return AUDIO_FILE_NOT_FOUND;
+	}
+
+	FILE* outFileName = fopen("./fileName.txt", "ab+");
+	
+	string strLog1,strLog2;
+	ClassDebug& nDebug = ClassDebug::getInStance();
+	strLog2 = "======================================================\n";
+	fwrite(strLog2.c_str(), 1, strLog2.size(), outFileName);
+	fwrite(strLog2.c_str(), 1, strLog2.size(), outFileName);
+	for (int ifileName = 0; ifileName < files.size(); ifileName++)
+	{
+		printf("file name is %s\n", files[ifileName].c_str());
+		strLog1 = "file name is ";
+		strLog1 += files[ifileName];
+		strLog2 = files[ifileName];
+		strLog2 += "\n";
+		nDebug.debugLog(strLog1);
+		fwrite(strLog2.c_str(), 1, strLog2.size(), outFileName);
+	}
+
+	fclose(outFileName);
+
 	return ret;
 }
 

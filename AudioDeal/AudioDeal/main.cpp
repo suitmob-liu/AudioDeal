@@ -50,6 +50,10 @@ int main()
 		{
 			break;
 		}
+		else if (functionTest == 'l')
+		{
+			break;
+		}
 		else
 		{
 			times++;
@@ -137,6 +141,17 @@ int main()
 		ret = testFunction.audioCutForBigFile(tm1, tm2, num);
 		printf("audioCut ret is %d\n", ret);
 		break;
+	case 'l':
+		printf("输入需检索的文件路径：");
+		scanf("%s", tm1);
+		printf("\n");
+		//printf("输入筛选文件条件：");
+		//scanf("%s", tm2);
+		//printf("\n");
+		str = "all";
+		testFunction.fileNameOut(tm1, str);
+
+		printf("合成成功\n");
 	default:
 		break;
 	}

@@ -27,6 +27,8 @@ public:
 
 	u32_t audioCutForBigFile(string inputName, string outPutPath, u16_t channel);
 
+	u32_t fileNameOut(string inPath, string filter);
+
 	void test();
 
 private:
